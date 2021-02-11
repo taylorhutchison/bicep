@@ -95,7 +95,7 @@ namespace Bicep.Core.Emit
                         // special cases for certain resource property access. if we recurse normally, we'll end up
                         // generating statements like reference(resourceId(...)).id which are not accepted by ARM
 
-                        var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                        var typeReference = EmitHelpers.GetSingleResourceTypeReference(resourceSymbol);
                         switch (propertyAccess.PropertyName.IdentifierName)
                         {
                             case "id":
@@ -183,7 +183,7 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression GenerateScopedResourceId(ResourceSymbol resourceSymbol, ResourceScope? targetScope)
         {
-            var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+            var typeReference = EmitHelpers.GetSingleResourceTypeReference(resourceSymbol);
             var nameSegments = GetResourceNameSegments(resourceSymbol, typeReference);
 
             if (!context.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData))
@@ -243,6 +243,37 @@ namespace Bicep.Core.Emit
                 GetLocallyScopedResourceId(resourceSymbol));
         }
 
+        private LanguageExpression GetLocalVariableExpression(LocalVariableSymbol localVariableSymbol)
+        {
+            var parent = this.context.SemanticModel.Binder.GetParent(localVariableSymbol.DeclaringLocalVariable);
+
+            switch (parent)
+            {
+                case ForSyntax @for when ReferenceEquals(@for.ItemVariable, localVariableSymbol.DeclaringLocalVariable):
+                    // this is the "item" variable of a for-expression
+                    // to emit this we need to basically index the array expression by the copyIndex() function
+                    var arrayExpression = ToFunctionExpression(@for.Expression);
+
+                    var copyIndexName = this.context.SemanticModel.Binder.GetParent(@for) switch
+                    {
+                        // copyIndex without name resolves to module/resource loop index in the runtime
+                        ResourceDeclarationSyntax => null,
+                        ModuleDeclarationSyntax => null,
+
+                        ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
+
+                        _ => throw new NotImplementedException("Unexpected for-expression grandparent.")
+                    };
+
+                    var copyIndexFunction = copyIndexName == null ? CreateFunction("copyIndex") : CreateFunction("copyIndex", new JTokenExpression(copyIndexName));
+                    
+                    return AppendProperties(arrayExpression, copyIndexFunction);
+
+                default:
+                    throw new NotImplementedException($"Encountered a local variable with parent of unexpected type '{parent?.GetType().Name}'.");
+            }
+        }
+
         private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
         {
             string name = variableAccessSyntax.Name.IdentifierName;
@@ -264,11 +295,14 @@ namespace Bicep.Core.Emit
                     return CreateFunction("variables", new JTokenExpression(name));
 
                 case ResourceSymbol resourceSymbol:
-                    var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                    var typeReference = EmitHelpers.GetSingleResourceTypeReference(resourceSymbol);
                     return GetReferenceExpression(resourceSymbol, typeReference, true);
 
                 case ModuleSymbol moduleSymbol:
                     return GetModuleOutputsReferenceExpression(moduleSymbol);
+
+                case LocalVariableSymbol localVariableSymbol:
+                    return GetLocalVariableExpression(localVariableSymbol);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
