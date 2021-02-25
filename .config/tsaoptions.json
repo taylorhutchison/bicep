@@ -3,5 +3,6 @@
   "iterationPath": "One\\Azure-ARM",
   "notificationAliases": [
     "azuregovenglt@microsoft.com"
-  ]
+  ],
+  "codebaseName": "TFSMSAzure_BicepMirror"
 }
