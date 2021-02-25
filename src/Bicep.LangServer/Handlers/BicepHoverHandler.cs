@@ -77,8 +77,10 @@ namespace Bicep.LanguageServer.Handlers
 
                     return $"```bicep\nmodule {module.Name}\n```";
 
-                case OutputSymbol output:
+                /* TODO discuss whether we need this?
+                case OutputDeclaration output:
                     return $"```bicep\noutput {output.Name}: {output.Type}\n```";
+                */
 
                 case NamespaceSymbol namespaceSymbol:
                     return $"```bicep\n{namespaceSymbol.Name} namespace\n```";

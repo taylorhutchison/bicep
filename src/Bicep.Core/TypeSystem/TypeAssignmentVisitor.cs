@@ -64,7 +64,12 @@ namespace Bicep.Core.TypeSystem
             => GetTypeAssignment(syntax).Reference.Type;
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
-            => assignedTypes.Values.SelectMany(x => x.Diagnostics);
+        {
+            // ensure we've visited all of the syntax nodes
+            Visit(this.binder.FileSymbol.Syntax);
+
+            return assignedTypes.Values.SelectMany(x => x.Diagnostics);
+        }
 
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
         {
@@ -900,9 +905,6 @@ namespace Bicep.Core.TypeSystem
                     case NamespaceSymbol @namespace:
                         return @namespace.Type;
 
-                    case OutputSymbol _:
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
-
                     default:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));
                 }
@@ -1127,7 +1129,6 @@ namespace Bicep.Core.TypeSystem
                             symbol.Kind != SymbolKind.Error &&
                             symbol.Kind != SymbolKind.Parameter &&
                             symbol.Kind != SymbolKind.Function &&
-                            symbol.Kind != SymbolKind.Output &&
                             symbol.Kind != SymbolKind.Namespace)
                         {
                             accumulated.Add(DiagnosticBuilder.ForPosition(current).CannotReferenceSymbolInParamDefaultValue());

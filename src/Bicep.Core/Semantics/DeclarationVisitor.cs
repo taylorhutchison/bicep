@@ -8,32 +8,32 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class DeclarationVisitor: SyntaxVisitor
+    public sealed class DeclarationVisitor : SyntaxVisitor
     {
         private readonly ISymbolContext context;
 
-        private readonly IList<DeclaredSymbol> declaredSymbols;
+        private readonly IList<INamedDeclaration> namedDeclarations;
 
         private readonly IList<ScopeInfo> childScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(ISymbolContext context, IList<DeclaredSymbol> declaredSymbols, IList<ScopeInfo> childScopes)
+        private DeclarationVisitor(ISymbolContext context, IList<INamedDeclaration> namedDeclarations, IList<ScopeInfo> childScopes)
         {
             this.context = context;
-            this.declaredSymbols = declaredSymbols;
+            this.namedDeclarations = namedDeclarations;
             this.childScopes = childScopes;
         }
 
-        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetAllDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
+        public static (ImmutableArray<INamedDeclaration>, ImmutableArray<LocalScope>) GetAllDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
         {
             // collect declarations
-            var declarations = new List<DeclaredSymbol>();
+            var namedDeclarations = new List<INamedDeclaration>();
             var childScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(symbolContext, declarations, childScopes);
+            var declarationVisitor = new DeclarationVisitor(symbolContext, namedDeclarations, childScopes);
             declarationVisitor.Visit(syntaxTree.ProgramSyntax);
 
-            return (declarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
+            return (namedDeclarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
         }
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
             base.VisitParameterDeclarationSyntax(syntax);
 
             var symbol = new ParameterSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Modifier);
-            this.declaredSymbols.Add(symbol);
+            this.namedDeclarations.Add(symbol);
         }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
@@ -49,7 +49,7 @@ namespace Bicep.Core.Semantics
             base.VisitVariableDeclarationSyntax(syntax);
 
             var symbol = new VariableSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
-            this.declaredSymbols.Add(symbol);
+            this.namedDeclarations.Add(symbol);
         }
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -57,7 +57,7 @@ namespace Bicep.Core.Semantics
             base.VisitResourceDeclarationSyntax(syntax);
 
             var symbol = new ResourceSymbol(this.context, syntax.Name.IdentifierName, syntax);
-            this.declaredSymbols.Add(symbol);
+            this.namedDeclarations.Add(symbol);
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -65,15 +65,15 @@ namespace Bicep.Core.Semantics
             base.VisitModuleDeclarationSyntax(syntax);
 
             var symbol = new ModuleSymbol(this.context, syntax.Name.IdentifierName, syntax);
-            this.declaredSymbols.Add(symbol);
+            this.namedDeclarations.Add(symbol);
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             base.VisitOutputDeclarationSyntax(syntax);
 
-            var symbol = new OutputSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
-            this.declaredSymbols.Add(symbol);
+            var output = new OutputDeclaration(this.context, syntax);
+            this.namedDeclarations.Add(output);
         }
 
         public override void VisitForSyntax(ForSyntax syntax)

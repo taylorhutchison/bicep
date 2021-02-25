@@ -21,7 +21,7 @@ namespace Bicep.Core.Semantics
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
             IEnumerable<ModuleSymbol> moduleDeclarations,
-            IEnumerable<OutputSymbol> outputDeclarations)
+            IEnumerable<OutputDeclaration> outputDeclarations)
             : base(name)
         {
             this.Syntax = syntax;
@@ -42,8 +42,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
-            .Concat(this.ModuleDeclarations)
-            .Concat(this.OutputDeclarations);
+            .Concat(this.ModuleDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
 
@@ -61,7 +60,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
-        public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
+        public ImmutableArray<OutputDeclaration> OutputDeclarations { get; }
         
         /// <summary>
         /// Returns all the top-level declaration symbols.
@@ -73,7 +72,21 @@ namespace Bicep.Core.Semantics
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+        {
+            var duplicateIdentifierDiagnostics = DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
+
+            var duplicateOutputDiagnostics = this.OutputDeclarations
+                .Where(decl => decl.Syntax.Name.IsValid)
+                .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
+                .Where(group => group.Count() > 1)
+                .SelectMany(group => group)
+                .Select(decl => DiagnosticBuilder.ForPosition(decl.Syntax.Name).OutputMultipleDeclarations(decl.Name));
+
+            return Enumerable.Concat(
+                duplicateIdentifierDiagnostics,
+                duplicateOutputDiagnostics);
+        }
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
 

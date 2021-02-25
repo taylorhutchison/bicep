@@ -5,7 +5,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public abstract class DeclaredSymbol : Symbol
+    public abstract class DeclaredSymbol : Symbol, INamedDeclaration
     {
         protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name)

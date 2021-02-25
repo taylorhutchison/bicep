@@ -188,9 +188,11 @@ namespace Bicep.LangServer.IntegrationTests
                     hover.Contents.MarkupContent.Value.Should().Contain($"module {module.Name}");
                     break;
 
-                case OutputSymbol output:
+                /* TODO discuss whether we need this?
+                case OutputDeclaration output:
                     hover.Contents.MarkupContent.Value.Should().Contain($"output {output.Name}: {output.Type}");
                     break;
+                */
 
                 case FunctionSymbol function:
                     hover.Contents.MarkupContent.Value.Should().Contain($"function {function.Name}(");

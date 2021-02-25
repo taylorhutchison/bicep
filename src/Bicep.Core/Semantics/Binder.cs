@@ -23,22 +23,22 @@ namespace Bicep.Core.Semantics
             this.syntaxTree = syntaxTree;
             this.TargetScope = SyntaxHelper.GetTargetScope(syntaxTree);
             var (allDeclarations, outermostScopes) = DeclarationVisitor.GetAllDeclarations(syntaxTree, symbolContext);
-            var uniqueDeclarations = GetUniqueDeclarations(allDeclarations);
-            var builtInNamespacs = GetBuiltInNamespaces(this.TargetScope);
-            this.bindings = GetBindings(syntaxTree, uniqueDeclarations, builtInNamespacs, outermostScopes);
-            this.cyclesBySymbol = GetCyclesBySymbol(syntaxTree, uniqueDeclarations, this.bindings);
+            var uniqueSymbolDeclarations = GetUniqueSymbolDeclarations(allDeclarations.OfType<DeclaredSymbol>());
+            var builtInNamespaces = GetBuiltInNamespaces(this.TargetScope);
+            this.bindings = GetBindings(syntaxTree, uniqueSymbolDeclarations, builtInNamespaces, outermostScopes);
+            this.cyclesBySymbol = GetCyclesBySymbol(syntaxTree, uniqueSymbolDeclarations, this.bindings);
 
             // TODO: Avoid looping 5 times?
             this.FileSymbol = new FileSymbol(
                 syntaxTree.FileUri.LocalPath,
                 syntaxTree.ProgramSyntax,
-                builtInNamespacs,
+                builtInNamespaces,
                 outermostScopes,
                 allDeclarations.OfType<ParameterSymbol>(),
                 allDeclarations.OfType<VariableSymbol>(),
                 allDeclarations.OfType<ResourceSymbol>(),
                 allDeclarations.OfType<ModuleSymbol>(),
-                allDeclarations.OfType<OutputSymbol>());
+                allDeclarations.OfType<OutputDeclaration>());
         }
 
         public ResourceScope TargetScope { get; }
@@ -67,7 +67,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 
-        private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueDeclarations(IEnumerable<DeclaredSymbol> allDeclarations)
+        private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueSymbolDeclarations(IEnumerable<DeclaredSymbol> allDeclarations)
         {
             // in cases of duplicate declarations we will see multiple declaration symbols in the result list
             // for simplicitly we will bind to the first one

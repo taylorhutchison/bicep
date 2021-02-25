@@ -186,9 +186,6 @@ output o int = 42
             
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
-            // outputs can't be referenced so they should not show up in completions
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-
             // the variable won't appear in completions because we are not suggesting cycles
             completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
 
@@ -226,9 +223,6 @@ output o int = 42
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
 
-            // outputs can't be referenced so they should not show up in completions
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-
             completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Module.ToCompletionItemKind()).Should().BeEmpty();
@@ -254,9 +248,6 @@ output o int = 42
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
-
-            // outputs can't be referenced so they should not show up in completions
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
 
             completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
@@ -286,9 +277,6 @@ output length int =
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
-
-            // outputs can't be referenced so they should not show up in completions
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
 
             const string expectedVariable = "resourceGroup";
             var variableCompletion = completions.Single(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind());

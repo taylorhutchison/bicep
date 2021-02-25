@@ -22,7 +22,6 @@ var resourceDependency = {
 }
 
 output resourceAType string = resA.type
-//@[7:20) Output resourceAType. Type: string. Declaration start char: 0, length: 39
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 132
   name: 'resA'
@@ -33,7 +32,6 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 }
 
 output resourceBId string = resB.id
-//@[7:18) Output resourceBId. Type: string. Declaration start char: 0, length: 35
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
 //@[9:13) Resource resB. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 125
   name: 'resB'
@@ -72,4 +70,3 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 }
 
 output resourceCProperties object = resC.properties
-//@[7:26) Output resourceCProperties. Type: object. Declaration start char: 0, length: 51

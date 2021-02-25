@@ -340,11 +340,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP057",
                 $"The name \"{name}\" does not exist in the current context.");
 
-            public ErrorDiagnostic OutputReferenceNotSupported(string name) => new(
-                TextSpan,
-                "BCP058",
-                $"The name \"{name}\" is an output. Outputs cannot be referenced in expressions.");
-
             public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new(
                 TextSpan,
                 "BCP059",
@@ -809,6 +804,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
+
+            public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP142",
+                $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ExpectedOutputType() => new(
+                TextSpan,
+                "BCP143",
+                $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

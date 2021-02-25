@@ -182,7 +182,6 @@ var funcvarvar = concat + base64 || !uniqueString
 param funcvarparam bool = concat
 //@[6:18) Parameter funcvarparam. Type: bool. Declaration start char: 0, length: 32
 output funcvarout array = padLeft
-//@[7:17) Output funcvarout. Type: array. Declaration start char: 0, length: 33
 
 // non-existent function
 var fakeFunc = red() + green() * orange()

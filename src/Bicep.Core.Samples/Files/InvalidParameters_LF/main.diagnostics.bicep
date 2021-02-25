@@ -387,10 +387,10 @@ param paramAccessingResource2 string {
 }
 
 param paramAccessingOutput string = sampleOutput
-//@[36:48) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. |sampleOutput|
+//@[36:48) [BCP057 (Error)] The name "sampleOutput" does not exist in the current context. |sampleOutput|
 param paramAccessingOutput2 string {
   default: sampleOutput
-//@[11:23) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. |sampleOutput|
+//@[11:23) [BCP057 (Error)] The name "sampleOutput" does not exist in the current context. |sampleOutput|
 }
 
 param stringLiteral string {

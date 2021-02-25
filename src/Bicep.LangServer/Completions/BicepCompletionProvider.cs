@@ -302,7 +302,7 @@ namespace Bicep.LanguageServer.Completions
                     return result;
                 }
 
-                result = GetAccessibleDecoratorFunctions(namespaceType, enclosingDeclarationSymbol);
+                result = GetAccessibleDecoratorFunctions(namespaceType, model, context);
                 accessibleDecoratorFunctionsCache.Add(namespaceType, result);
 
                 return result;
@@ -314,7 +314,7 @@ namespace Bicep.LanguageServer.Completions
                 AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values);
 
                 // add the non-output declarations with valid identifiers 
-                AddSymbolCompletions(completions, model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && decl is not OutputSymbol));
+                AddSymbolCompletions(completions, model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid));
             }
             else
             {
@@ -323,7 +323,7 @@ namespace Bicep.LanguageServer.Completions
                     @namespace => GetAccessibleDecoratorFunctionsWithCache(@namespace.Type).Any()));
 
                 // Record the names of the non-output declarations which will be used to check name clashes later.
-                declaredNames.UnionWith(model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && decl is not OutputSymbol).Select(decl => decl.Name));
+                declaredNames.UnionWith(model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid).Select(decl => decl.Name));
             }
 
             // get names of functions that always require to be fully qualified due to clashes between namespaces
@@ -369,7 +369,7 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, Symbol? enclosingDeclarationSymbol)
+        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, SemanticModel semanticModel, BicepCompletionContext context)
         {
             // Local function.
             IEnumerable<FunctionSymbol> GetAccessible(IEnumerable<FunctionSymbol> symbols, TypeSymbol targetType, FunctionFlags flags) =>
@@ -379,13 +379,13 @@ namespace Bicep.LanguageServer.Completions
 
             var knownDecoratorFunctions = namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Values;
 
-            return enclosingDeclarationSymbol switch
+            return context.EnclosingDeclaration switch
             {
-                ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
-                VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
-                ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResoureDecorator),
-                ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),
-                OutputSymbol outputSymbol => GetAccessible(knownDecoratorFunctions, outputSymbol.Type, FunctionFlags.OutputDecorator),
+                ParameterDeclarationSyntax parameter => GetAccessible(knownDecoratorFunctions, semanticModel.GetTypeInfo(parameter), FunctionFlags.ParameterDecorator),
+                VariableDeclarationSyntax variable => GetAccessible(knownDecoratorFunctions, semanticModel.GetTypeInfo(variable), FunctionFlags.VariableDecorator),
+                ResourceDeclarationSyntax resource => GetAccessible(knownDecoratorFunctions, semanticModel.GetTypeInfo(resource), FunctionFlags.ResoureDecorator),
+                ModuleDeclarationSyntax module => GetAccessible(knownDecoratorFunctions, semanticModel.GetTypeInfo(module), FunctionFlags.ModuleDecorator),
+                OutputDeclarationSyntax output => GetAccessible(knownDecoratorFunctions, semanticModel.GetTypeInfo(output), FunctionFlags.OutputDecorator),
                 /*
                  * The decorator is dangling if enclosingDeclarationSymbol is null. Return all decorator factory functions since
                  * we don't know which kind of declaration it will attach to.
@@ -407,9 +407,8 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName) && declaredType is NamespaceType namespaceType)
             {
                 var model = compilation.GetEntrypointSemanticModel();
-                var enclosingDeclarationSymbol = context.EnclosingDeclaration is null ? null : model.GetSymbolInfo(context.EnclosingDeclaration);
 
-                return GetAccessibleDecoratorFunctions(namespaceType, enclosingDeclarationSymbol)
+                return GetAccessibleDecoratorFunctions(namespaceType, model, context)
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange));
             }
 
@@ -741,7 +740,6 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.File => CompletionItemKind.File,
                 SymbolKind.Variable => CompletionItemKind.Variable,
                 SymbolKind.Namespace => CompletionItemKind.Folder,
-                SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Parameter => CompletionItemKind.Field,
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 SymbolKind.Module => CompletionItemKind.Module,

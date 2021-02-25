@@ -15,7 +15,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                 SymbolKind.Parameter => CompletionItemKind.Field,
                 SymbolKind.Variable => CompletionItemKind.Variable,
                 SymbolKind.Resource => CompletionItemKind.Interface,
-                SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Namespace => CompletionItemKind.Reference,
                 SymbolKind.Function => CompletionItemKind.Function,
                 SymbolKind.Module => CompletionItemKind.Module,

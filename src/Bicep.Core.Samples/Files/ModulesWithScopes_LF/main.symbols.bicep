@@ -30,7 +30,5 @@ module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscriptio
 
 
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
-//@[7:30) Output myManagementGroupOutput. Type: string. Declaration start char: 0, length: 77
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
-//@[7:27) Output mySubscriptionOutput. Type: string. Declaration start char: 0, length: 71
 

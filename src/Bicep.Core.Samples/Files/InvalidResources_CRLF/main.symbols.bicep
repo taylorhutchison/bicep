@@ -165,7 +165,6 @@ param resrefpar string = foo.id
 //@[6:15) Parameter resrefpar. Type: string. Declaration start char: 0, length: 31
 
 output resrefout bool = bar.id
-//@[7:16) Output resrefout. Type: bool. Declaration start char: 0, length: 30
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {

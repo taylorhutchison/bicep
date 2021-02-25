@@ -112,12 +112,7 @@ resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 }
 
 output stringOutputA string = modATest.outputs.stringOutputA
-//@[7:20) Output stringOutputA. Type: string. Declaration start char: 0, length: 60
 output stringOutputB string = modATest.outputs.stringOutputB
-//@[7:20) Output stringOutputB. Type: string. Declaration start char: 0, length: 60
 output objOutput object = modATest.outputs.objOutput
-//@[7:16) Output objOutput. Type: object. Declaration start char: 0, length: 52
 output arrayOutput array = modATest.outputs.arrayOutput
-//@[7:18) Output arrayOutput. Type: array. Declaration start char: 0, length: 55
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
-//@[7:30) Output modCalculatedNameOutput. Type: object. Declaration start char: 0, length: 82

@@ -28,11 +28,13 @@ module subscriptionModuleDuplicateName5 'modules/subscription.bicep' = {
 }
 
 module resourceGroupModuleDuplicateName1 'modules/resourceGroup.bicep' = {
+//@[41:70) [BCP104 (Error)] The referenced module has errors. |'modules/resourceGroup.bicep'|
   name: 'resourceGroupModuleDuplicateName'
 //@[8:42) [BCP122 (Error)] Modules: "resourceGroupModuleDuplicateName1", "resourceGroupModuleDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'resourceGroupModuleDuplicateName'|
   scope: resourceGroup('RG')
 }
 module resourceGroupModuleDuplicateName2 'modules/resourceGroup.bicep' = {
+//@[41:70) [BCP104 (Error)] The referenced module has errors. |'modules/resourceGroup.bicep'|
   name: 'resourceGroupModuleDuplicateName'
 //@[8:42) [BCP122 (Error)] Modules: "resourceGroupModuleDuplicateName1", "resourceGroupModuleDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'resourceGroupModuleDuplicateName'|
   scope: resourceGroup('RG')

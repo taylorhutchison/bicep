@@ -107,7 +107,6 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||
-                        s is OutputSymbol ||
                         s is FunctionSymbol ||
                         s is NamespaceSymbol ||
                         s is LocalVariableSymbol);
@@ -121,7 +120,6 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||
-                        s is OutputSymbol ||
                         s is FunctionSymbol ||
                         s is NamespaceSymbol ||
                         s is LocalVariableSymbol);

@@ -64,7 +64,7 @@ namespace Bicep.Core.Syntax
             var outputTypeProperties = new List<TypeProperty>();
             foreach (var output in moduleSemanticModel.Root.OutputDeclarations)
             {
-                outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+                outputTypeProperties.Add(new TypeProperty(output.Name, output.GetTypeSymbol(), TypePropertyFlags.ReadOnly));
             }
 
             return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, moduleSemanticModel.TargetScope, containingScope, "module");

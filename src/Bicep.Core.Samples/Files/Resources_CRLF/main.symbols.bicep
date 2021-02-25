@@ -143,9 +143,7 @@ var _siteType = site.type
 //@[4:13) Variable _siteType. Type: 'Microsoft.Web/sites'. Declaration start char: 0, length: 25
 
 output siteApiVersion string = site.apiVersion
-//@[7:21) Output siteApiVersion. Type: string. Declaration start char: 0, length: 46
 output siteType string = site.type
-//@[7:15) Output siteType. Type: string. Declaration start char: 0, length: 34
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[9:15) Resource nested. Type: Microsoft.Resources/deployments@2019-10-01. Declaration start char: 0, length: 354

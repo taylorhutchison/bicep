@@ -479,21 +479,21 @@ namespace Bicep.Core.Emit
             memoryWriter.WritePropertyName("outputs");
             memoryWriter.WriteStartObject();
 
-            foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
+            foreach (var output in this.context.SemanticModel.Root.OutputDeclarations)
             {
-                memoryWriter.WritePropertyName(outputSymbol.Name);
-                this.EmitOutput(memoryWriter, outputSymbol, emitter);
+                memoryWriter.WritePropertyName(output.Name);
+                this.EmitOutput(memoryWriter, output, emitter);
             }
 
             memoryWriter.WriteEndObject();
         }
 
-        private void EmitOutput(JsonTextWriter memoryWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
+        private void EmitOutput(JsonTextWriter memoryWriter, OutputDeclaration output, ExpressionEmitter emitter)
         {
             memoryWriter.WriteStartObject();
 
-            emitter.EmitProperty("type", outputSymbol.Type.Name);
-            emitter.EmitProperty("value", outputSymbol.Value);
+            emitter.EmitProperty("type", output.GetTypeSymbol().Name);
+            emitter.EmitProperty("value", output.Syntax.Value);
 
             memoryWriter.WriteEndObject();
         }

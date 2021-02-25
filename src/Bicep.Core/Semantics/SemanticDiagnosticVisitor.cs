@@ -51,12 +51,6 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitOutputSymbol(OutputSymbol symbol)
-        {
-            base.VisitOutputSymbol(symbol);
-            this.CollectDiagnostics(symbol);
-        }
-
         public override void VisitErrorSymbol(ErrorSymbol symbol)
         {
             base.VisitErrorSymbol(symbol);

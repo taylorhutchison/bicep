@@ -11,7 +11,6 @@ namespace Bicep.Core.Semantics
         Variable,
         Resource,
         Module,
-        Output,
         Namespace,
         Function,
         Local,

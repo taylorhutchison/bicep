@@ -41,11 +41,6 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitOutputSymbol(OutputSymbol symbol)
-        {
-            VisitDescendants(symbol);
-        }
-
         public virtual void VisitTypeSymbol(TypeSymbol symbol)
         {
             VisitDescendants(symbol);

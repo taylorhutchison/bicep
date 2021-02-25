@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(symbol, context.LineStarts)));
         }
 
-        private DocumentSymbol CreateDocumentSymbol(DeclaredSymbol symbol, ImmutableArray<int> lineStarts) =>
+        private static DocumentSymbol CreateDocumentSymbol(DeclaredSymbol symbol, ImmutableArray<int> lineStarts) =>
             new DocumentSymbol
             {
                 Name = symbol.Name,
@@ -68,53 +68,27 @@ namespace Bicep.LanguageServer.Handlers
                 SelectionRange = symbol.NameSyntax.ToRange(lineStarts)
             };
 
-        private SymbolKind SelectSymbolKind(DeclaredSymbol symbol)
-        {
-            switch (symbol)
+        private static SymbolKind SelectSymbolKind(INamedDeclaration declaration)
+            => declaration switch
             {
-                case ParameterSymbol _:
-                    return SymbolKind.Field;
+                ParameterSymbol _ => SymbolKind.Field,
+                VariableSymbol _ => SymbolKind.Variable,
+                ResourceSymbol _ => SymbolKind.Object,
+                ModuleSymbol _ => SymbolKind.Module,
+                OutputDeclaration _ => SymbolKind.Interface,
+                _ => SymbolKind.Key,
+            };
 
-                case VariableSymbol _:
-                    return SymbolKind.Variable;
-
-                case ResourceSymbol resource:
-                    return SymbolKind.Object;
-
-                case ModuleSymbol module:
-                    return SymbolKind.Module;
-
-                case OutputSymbol output:
-                    return SymbolKind.Interface;
-                
-                default:
-                    return SymbolKind.Key;
-            }
-        }
-
-        private string FormatDetail(DeclaredSymbol symbol)
-        {
-            switch (symbol)
+        private static string FormatDetail(INamedDeclaration declaration)
+            => declaration switch
             {
-                case ParameterSymbol parameter:
-                    return parameter.Type.Name;
-
-                case VariableSymbol variable:
-                    return variable.Type.Name;
-
-                case ResourceSymbol resource:
-                    return resource.Type.Name;
-
-                case ModuleSymbol module:
-                    return module.Type.Name;
-
-                case OutputSymbol output:
-                    return output.Type.Name;
-
-                default:
-                    return string.Empty;
-            }
-        }
+                ParameterSymbol parameter => parameter.Type.Name,
+                VariableSymbol variable => variable.Type.Name,
+                ResourceSymbol resource => resource.Type.Name,
+                ModuleSymbol module => module.Type.Name,
+                OutputDeclaration output => output.GetTypeSymbol().Name,
+                _ => string.Empty,
+            };
     }
 }
 
